@@ -3,13 +3,31 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { getQuizzes } from '../../services/api';
 import { Quiz } from '../../types';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const ScreenContainer = styled.div`
   padding: ${({ theme }) => theme.spacing.md};
 `;
 
-const Title = styled.h1`
+const Header = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: ${({ theme }) => theme.spacing.lg};
+`;
+
+const Title = styled.h1`
+  margin: 0;
+`;
+
+const CreateButton = styled.button`
+  padding: 0.5rem 1rem;
+  background-color: ${({ theme }) => theme.colors.accent};
+  color: ${({ theme }) => theme.colors.black};
+  border: none;
+  border-radius: ${({ theme }) => theme.borderRadius};
+  font-weight: bold;
+  cursor: pointer;
 `;
 
 const QuizCard = styled.div`
@@ -36,6 +54,7 @@ const RetosScreen = () => {
   const [quizzes, setQuizzes] = useState<Omit<Quiz, 'questions'>[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get user from context
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -61,7 +80,15 @@ const RetosScreen = () => {
 
   return (
     <ScreenContainer>
-      <Title>Retos Educativos</Title>
+      <Header>
+        <Title>Retos Educativos</Title>
+        {/* --- Conditional Rendering for Teacher --- */}
+        {user?.role === 'Docente' && (
+          <CreateButton onClick={() => alert('Próximamente: ¡Crea tu propio reto educativo!')}>
+            Crear Reto
+          </CreateButton>
+        )}
+      </Header>
       {quizzes.map((quiz) => (
         <QuizCard key={quiz.id} onClick={() => handleQuizClick(quiz.id)}>
           <h3>{quiz.title}</h3>

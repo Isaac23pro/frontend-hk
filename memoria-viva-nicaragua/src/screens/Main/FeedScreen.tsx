@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import { useNavigate } from 'react-router-dom';
 import { getFeedMemories } from '../../services/api';
 import { Memory } from '../../types';
 import MemoryCard from '../../components/common/MemoryCard';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const FeedContainer = styled.div`
   padding: ${({ theme }) => theme.spacing.md};
@@ -17,7 +18,7 @@ const LoadingMessage = styled.p`
 
 const FloatingActionButton = styled.button`
   position: fixed;
-  bottom: 80px; /* Above the tab bar */
+  bottom: 80px;
   right: 20px;
   width: 60px;
   height: 60px;
@@ -44,7 +45,8 @@ const FeedScreen = () => {
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const observer = useRef<IntersectionObserver>();
-  const navigate = useNavigate(); // Get navigate function
+  const navigate = useNavigate();
+  const { user } = useAuth(); // Get user from context
 
   const lastMemoryElementRef = useCallback(node => {
     if (loading) return;
@@ -78,6 +80,8 @@ const FeedScreen = () => {
     return <LoadingMessage>Cargando memorias...</LoadingMessage>;
   }
 
+  const canCreateContent = user?.role === 'Comunidad' || user?.role === 'Docente';
+
   return (
     <FeedContainer>
       {memories.map((memory, index) => {
@@ -89,9 +93,13 @@ const FeedScreen = () => {
       })}
       {loading && <LoadingMessage>Cargando más...</LoadingMessage>}
       {!hasMore && <LoadingMessage>No hay más memorias para mostrar.</LoadingMessage>}
-      <FloatingActionButton onClick={() => navigate('/crear-memoria')}>
-        +
-      </FloatingActionButton>
+
+      {/* --- Conditional Rendering for Content Creators --- */}
+      {canCreateContent && (
+        <FloatingActionButton onClick={() => navigate('/crear-memoria')}>
+          +
+        </FloatingActionButton>
+      )}
     </FeedContainer>
   );
 };
