@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-type UserRole = 'Estudiante' | 'Docente' | 'Comunidad' | 'Moderador';
+export type UserRole = 'Estudiante' | 'Docente' | 'Comunidad' | 'Moderador';
 
 interface User {
   id: string;
@@ -21,17 +21,29 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
 
-  // Mock login function
+  // Mock login function with role simulation
   const login = async (email: string, pass: string) => {
-    console.log('Attempting login with:', email, pass);
-    // In a real app, you'd make an API call
     return new Promise<void>((resolve) => {
       setTimeout(() => {
+        let role: UserRole = 'Estudiante'; // Default role
+        let name = 'Usuario Estudiante';
+
+        if (email.startsWith('moderador')) {
+          role = 'Moderador';
+          name = 'Usuario Moderador';
+        } else if (email.startsWith('docente')) {
+          role = 'Docente';
+          name = 'Usuario Docente';
+        } else if (email.startsWith('comunidad')) {
+          role = 'Comunidad';
+          name = 'Usuario Comunidad';
+        }
+
         const mockUser: User = {
-          id: '1',
-          name: 'Jules Verne',
+          id: `${role}-${Date.now()}`,
+          name: name,
           email: email,
-          role: 'Estudiante', // Default role for mock
+          role: role,
         };
         setUser(mockUser);
         resolve();

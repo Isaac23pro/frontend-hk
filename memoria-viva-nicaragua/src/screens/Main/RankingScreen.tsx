@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { getRanking } from '../../services/api';
 import { RankedUser } from '../../types';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext'; // Import useAuth
 
 const ScreenContainer = styled.div`
   padding: ${({ theme }) => theme.spacing.md};
@@ -77,6 +78,7 @@ const RankingScreen = () => {
   const [ranking, setRanking] = useState<RankedUser[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const { user } = useAuth(); // Get user from context
 
   useEffect(() => {
     const fetchRanking = async () => {
@@ -117,7 +119,13 @@ const RankingScreen = () => {
           </TableRow>
         ))}
       </RankingTable>
-      <ActionButton onClick={() => navigate('/moderacion')}>Panel de Moderación</ActionButton>
+
+      {/* --- Conditional Rendering for Moderator --- */}
+      {user?.role === 'Moderador' && (
+        <ActionButton onClick={() => navigate('/moderacion')}>
+          Panel de Moderación
+        </ActionButton>
+      )}
     </ScreenContainer>
   );
 };
